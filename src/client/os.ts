@@ -8,6 +8,7 @@ import MkWaitingDialog from '@/components/waiting-dialog.vue';
 import { resolve } from '@/router';
 import { $i } from '@/account';
 import { defaultStore } from '@/store';
+import parseAcct from '../misc/acct/parse';
 
 export const stream = markRaw(new Stream());
 
@@ -17,21 +18,21 @@ export const apiRequests = ref([]); // for debug
 
 export const windows = new Map();
 
-export function api(endpoint: string, data: Record<string, any> = {}, token?: string | null | undefined) {
-	pendingApiRequestsCount.value++;
+export function api(endpoint: string, data: Record<string, any> = {}, token?: string | null | undefined, lite?: boolean) {
+	if (!lite) pendingApiRequestsCount.value++;
 
 	const onFinally = () => {
 		pendingApiRequestsCount.value--;
 	};
 
-	const log = debug ? reactive({
+	const log = !lite && debug ? reactive({
 		id: ++apiRequestsCount,
 		endpoint,
 		req: markRaw(data),
 		res: null,
 		state: 'pending',
 	}) : null;
-	if (debug) {
+	if (debug && !lite) {
 		apiRequests.value.push(log);
 		if (apiRequests.value.length > 128) apiRequests.value.shift();
 	}
@@ -422,3 +423,42 @@ export function checkExistence(fileData: ArrayBuffer): Promise<any> {
 		});
 	});
 }*/
+
+type Instance = {
+	fetchedAt: number,
+	instance: Record<string, any>
+};
+
+const instances: Record<string, Instance> = {};
+
+export async function getInstance(host?: string): Promise<Instance | null> {
+	if (!host) return null;
+	const now = Date.now();
+	// キャッシュが無いか、前回取得時から5分以上たっていれば取得してくる
+	if (!instances[host] || now - instances[host].fetchedAt > 1000 * 60 * 5) {
+		instances[host] = {
+			fetchedAt: now,
+			instance: await api('federation/show-instance', { host })
+		};
+	}
+	return instances[host];
+}
+
+type Avatar = {
+	fetchedAt: number,
+	avatarUrl: string,
+};
+
+const avatars: Record<string, Avatar> = {};
+
+export async function getAvatar(acct: string): Promise<string> { 
+	const now = Date.now();
+	// キャッシュが無いか、前回取得時から5分以上たっていれば取得してくる
+	if (!avatars[acct] || now - avatars[acct].fetchedAt > 1000 * 60 * 5) {
+		avatars[acct] = {
+			avatarUrl: (await api('users/show', parseAcct(acct), undefined, true).catch(e => ({ avatarUrl: '' })) as any).avatarUrl,
+			fetchedAt: now
+		};
+	}
+	return avatars[acct].avatarUrl;
+}

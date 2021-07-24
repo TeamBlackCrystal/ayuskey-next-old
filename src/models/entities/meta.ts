@@ -53,7 +53,7 @@ export class Meta {
 	public disableGlobalTimeline: boolean;
 
 	@Column('boolean', {
-		default: false,
+		default: true,
 	})
 	public useStarForReactionFallback: boolean;
 
