@@ -558,7 +558,7 @@ export default defineComponent({
 				replyId: this.reply ? this.reply.id : undefined,
 				renoteId: this.renote ? this.renote.id : this.quoteId ? this.quoteId : undefined,
 				//TODO
-				//channelId: this.channel ? this.channel.id : undefined,
+				channelId: this.channel ? this.channel.id : undefined,
 				poll: this.poll || undefined,
 				cw: this.useCw ? this.cw || '' : undefined,
 				localOnly: this.localOnly,
