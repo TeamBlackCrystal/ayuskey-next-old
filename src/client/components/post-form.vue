@@ -557,7 +557,6 @@ export default defineComponent({
 				fileIds: this.files.length > 0 ? this.files.map(f => f.id) : undefined,
 				replyId: this.reply ? this.reply.id : undefined,
 				renoteId: this.renote ? this.renote.id : this.quoteId ? this.quoteId : undefined,
-				//TODO
 				channelId: this.channel ? this.channel.id : undefined,
 				poll: this.poll || undefined,
 				cw: this.useCw ? this.cw || '' : undefined,
