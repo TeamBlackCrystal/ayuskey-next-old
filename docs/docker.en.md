@@ -12,13 +12,13 @@ This guide describes how to install and setup Misskey with Docker.
 ----------------------------------------------------------------
 1. Clone Misskey repository's master branch.
 
-	`git clone -b master git://github.com/syuilo/misskey.git`
+	`git clone -b master git://github.com/misskey-dev/misskey.git`
 
 2. Move to misskey directory.
 
 	`cd misskey`
 
-3. Checkout to the [latest release](https://github.com/syuilo/misskey/releases/latest) tag.
+3. Checkout to the [latest release](https://github.com/misskey-dev/misskey/releases/latest) tag.
 
 	`git checkout master`
 
@@ -36,8 +36,8 @@ cp docker_example.env docker.env
 ### `default.yml`
 
 Edit this file the same as non-Docker environment.  
-However hostname of Postgresql, Redis and Elasticsearch are not `localhost`, they are set in `docker-compose.yml`.  
-The following is default hostname:
+However, the host name of Postgresql, Redis, Elasticsearch in `default.yml` should be the service name of `docker-compose.yml` instead of the `localhost`.  
+If you are using the default `docker-compose.yml`, use the following values:
 
 | Service       | Hostname |
 |---------------|----------|
@@ -83,10 +83,11 @@ Just `docker-compose up -d`. GLHF!
 1. `git stash`
 2. `git checkout master`
 3. `git pull`
-4. `git stash pop`
-5. `docker-compose build`
-6. Check [ChangeLog](../CHANGELOG.md) for migration information
-7. `docker-compose stop && docker-compose up -d`
+4. `git submodule update --init`
+5. `git stash pop`
+6. `docker-compose build`
+7. Check [ChangeLog](../CHANGELOG.md) for migration information
+8. `docker-compose stop && docker-compose up -d`
 
 ### How to execute [cli commands](manage.en.md):
 `docker-compose run --rm web node built/tools/mark-admin @example`

@@ -1,12 +1,11 @@
 <template>
-<div class="yxspomdl" :class="{ inline }">
+<div class="yxspomdl" :class="{ inline, colored, mini }">
 	<div class="ring"></div>
 </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import * as os from '@/os';
 
 export default defineComponent({
 	props: {
@@ -14,7 +13,17 @@ export default defineComponent({
 			type: Boolean,
 			required: false,
 			default: false
-		}
+		},
+		colored: {
+			type: Boolean,
+			required: false,
+			default: true
+		},
+		mini: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
 	}
 });
 </script>
@@ -32,33 +41,52 @@ export default defineComponent({
 .yxspomdl {
 	padding: 32px;
 	text-align: center;
+	cursor: wait;
+
+	--size: 48px;
+
+	&.colored {
+		color: var(--accent);
+	}
 
 	&.inline {
 		display: inline;
 		padding: 0;
+		--size: 32px;
+	}
 
-		> .ring:after {
-			width: 32px;
-			height: 32px;
-		}
+	&.mini {
+		padding: 16px;
+		--size: 32px;
 	}
 
 	> .ring {
+		position: relative;
 		display: inline-block;
-		opacity: 0.7;
 		vertical-align: middle;
-	}
 
-	> .ring:after {
-		content: " ";
-		display: block;
-		box-sizing: border-box;
-		width: 48px;
-		height: 48px;
-		border-radius: 50%;
-		border: solid 4px;
-		border-color: currentColor transparent transparent transparent;
-		animation: ring 0.5s linear infinite;
+		&:before,
+		&:after {
+			content: " ";
+			display: block;
+			box-sizing: border-box;
+			width: var(--size);
+			height: var(--size);
+			border-radius: 50%;
+			border: solid 4px;
+		}
+
+		&:before {
+			border-color: currentColor;
+			opacity: 0.3;
+		}
+
+		&:after {
+			position: absolute;
+			top: 0;
+			border-color: currentColor transparent transparent transparent;
+			animation: ring 0.5s linear infinite;
+		}
 	}
 }
 </style>

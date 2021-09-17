@@ -1,8 +1,8 @@
 import $ from 'cafy';
-import { ID } from '../../../../misc/cafy-id';
+import { ID } from '@/misc/cafy-id';
 import define from '../../define';
 import { ApiError } from '../../error';
-import { Clips } from '../../../../models';
+import { Clips } from '@/models/index';
 
 export const meta = {
 	tags: ['clips'],
@@ -35,6 +35,12 @@ export const meta = {
 			code: 'NO_SUCH_CLIP',
 			id: 'b4d92d70-b216-46fa-9a3f-a8c811699257'
 		},
+	},
+
+	res: {
+		type: 'object' as const,
+		optional: false as const, nullable: false as const,
+		ref: 'Clip'
 	}
 };
 

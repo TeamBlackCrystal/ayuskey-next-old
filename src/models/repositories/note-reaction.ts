@@ -1,8 +1,9 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { NoteReaction } from '../entities/note-reaction';
-import { Users } from '..';
-import { SchemaType } from '../../misc/schema';
-import { convertLegacyReaction } from '../../misc/reaction-lib';
+import { NoteReaction } from '@/models/entities/note-reaction';
+import { Users } from '../index';
+import { SchemaType } from '@/misc/schema';
+import { convertLegacyReaction } from '@/misc/reaction-lib';
+import { User } from '@/models/entities/user';
 
 export type PackedNoteReaction = SchemaType<typeof packedNoteReactionSchema>;
 
@@ -10,7 +11,7 @@ export type PackedNoteReaction = SchemaType<typeof packedNoteReactionSchema>;
 export class NoteReactionRepository extends Repository<NoteReaction> {
 	public async pack(
 		src: NoteReaction['id'] | NoteReaction,
-		me?: any
+		me?: { id: User['id'] } | null | undefined
 	): Promise<PackedNoteReaction> {
 		const reaction = typeof src === 'object' ? src : await this.findOneOrFail(src);
 
@@ -31,25 +32,21 @@ export const packedNoteReactionSchema = {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'id',
-			description: 'The unique identifier for this reaction.',
 			example: 'xxxxxxxxxx',
 		},
 		createdAt: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'date-time',
-			description: 'The date that the reaction was created.'
 		},
 		user: {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
-			ref: 'User',
-			description: 'User who performed this reaction.'
+			ref: 'User' as const,
 		},
 		type: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
-			description: 'The reaction type.'
 		},
 	},
 };

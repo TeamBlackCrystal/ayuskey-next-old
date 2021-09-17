@@ -1,13 +1,9 @@
 import define from '../define';
-import { NoteReactions, Notes, Users } from '../../../models';
-import { federationChart, driveChart } from '../../../services/chart';
+import { NoteReactions, Notes, Users } from '@/models/index';
+import { federationChart, driveChart } from '@/services/chart/index';
 
 export const meta = {
 	requireCredential: false as const,
-
-	desc: {
-		'en-US': 'Get the instance\'s statistics'
-	},
 
 	tags: ['meta'],
 
@@ -21,28 +17,31 @@ export const meta = {
 			notesCount: {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
-				description: 'The count of all (local/remote) notes of this instance.',
 			},
 			originalNotesCount: {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
-				description: 'The count of all local notes of this instance.',
 			},
 			usersCount: {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
-				description: 'The count of all (local/remote) accounts of this instance.',
 			},
 			originalUsersCount: {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
-				description: 'The count of all local accounts of this instance.',
 			},
 			instances: {
 				type: 'number' as const,
 				optional: false as const, nullable: false as const,
-				description: 'The count of federated instances.',
 			},
+			driveUsageLocal: {
+				type: 'number' as const,
+				optional: false as const, nullable: false as const
+			},
+			driveUsageRemote: {
+				type: 'number' as const,
+				optional: false as const, nullable: false as const
+			}
 		}
 	}
 };

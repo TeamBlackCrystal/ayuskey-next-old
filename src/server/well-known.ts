@@ -1,12 +1,11 @@
 import * as Router from '@koa/router';
 
-import config from '../config';
-import parseAcct from '../misc/acct/parse';
-import Acct from '../misc/acct/type';
+import config from '@/config/index';
+import { parseAcct, Acct } from '@/misc/acct';
 import { links } from './nodeinfo';
-import { escapeAttribute, escapeValue } from '../prelude/xml';
-import { Users } from '../models';
-import { User } from '../models/entities/user';
+import { escapeAttribute, escapeValue } from '@/prelude/xml';
+import { Users } from '@/models/index';
+import { User } from '@/models/entities/user';
 
 // Init router
 const router = new Router();
@@ -60,6 +59,11 @@ router.get('/.well-known/host-meta.json', async ctx => {
 router.get('/.well-known/nodeinfo', async ctx => {
 	ctx.body = { links };
 });
+
+/* TODO
+router.get('/.well-known/change-password', async ctx => {
+});
+*/
 
 router.get(webFingerPath, async ctx => {
 	const fromId = (id: User['id']): Record<string, any> => ({

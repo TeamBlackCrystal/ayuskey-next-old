@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { UserList } from '../entities/user-list';
-import { UserListJoinings } from '..';
-import { SchemaType } from '../../misc/schema';
+import { UserList } from '@/models/entities/user-list';
+import { UserListJoinings } from '../index';
+import { SchemaType } from '@/misc/schema';
 
 export type PackedUserList = SchemaType<typeof packedUserListSchema>;
 
@@ -33,19 +33,16 @@ export const packedUserListSchema = {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'id',
-			description: 'The unique identifier for this UserList.',
 			example: 'xxxxxxxxxx',
 		},
 		createdAt: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'date-time',
-			description: 'The date that the UserList was created.'
 		},
 		name: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
-			description: 'The name of the UserList.'
 		},
 		userIds: {
 			type: 'array' as const,

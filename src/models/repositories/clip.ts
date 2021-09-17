@@ -1,8 +1,8 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { Clip } from '../entities/clip';
-import { SchemaType } from '../../misc/schema';
-import { Users } from '..';
-import { awaitAll } from '../../prelude/await-all';
+import { Clip } from '@/models/entities/clip';
+import { SchemaType } from '@/misc/schema';
+import { Users } from '../index';
+import { awaitAll } from '@/prelude/await-all';
 
 export type PackedClip = SchemaType<typeof packedClipSchema>;
 
@@ -39,14 +39,12 @@ export const packedClipSchema = {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'id',
-			description: 'The unique identifier for this Clip.',
 			example: 'xxxxxxxxxx',
 		},
 		createdAt: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'date-time',
-			description: 'The date that the Clip was created.'
 		},
 		userId: {
 			type: 'string' as const,
@@ -55,23 +53,20 @@ export const packedClipSchema = {
 		},
 		user: {
 			type: 'object' as const,
-			ref: 'User',
+			ref: 'User' as const,
 			optional: false as const, nullable: false as const,
 		},
 		name: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
-			description: 'The name of the Clip.'
 		},
 		description: {
 			type: 'string' as const,
 			optional: false as const, nullable: true as const,
-			description: 'The description of the Clip.'
 		},
 		isPublic: {
 			type: 'boolean' as const,
 			optional: false as const, nullable: false as const,
-			description: 'Whether this Clip is public.',
 		},
 	},
 };

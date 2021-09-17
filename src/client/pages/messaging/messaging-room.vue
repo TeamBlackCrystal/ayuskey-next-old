@@ -6,10 +6,10 @@
 	<div class="_content mk-messaging-room">
 		<div class="body">
 			<MkLoading v-if="fetching"/>
-			<p class="empty" v-if="!fetching && messages.length == 0"><Fa :icon="faInfoCircle"/>{{ $ts.noMessagesYet }}</p>
-			<p class="no-history" v-if="!fetching && messages.length > 0 && !existMoreMessages"><Fa :icon="faFlag"/>{{ $ts.noMoreHistory }}</p>
+			<p class="empty" v-if="!fetching && messages.length == 0"><i class="fas fa-info-circle"></i>{{ $ts.noMessagesYet }}</p>
+			<p class="no-history" v-if="!fetching && messages.length > 0 && !existMoreMessages"><i class="fas fa-flag"></i>{{ $ts.noMoreHistory }}</p>
 			<button class="more _button" ref="loadMore" :class="{ fetching: fetchingMoreMessages }" v-show="existMoreMessages" @click="fetchMoreMessages" :disabled="fetchingMoreMessages">
-				<template v-if="fetchingMoreMessages"><Fa icon="spinner" pulse fixed-width/></template>{{ fetchingMoreMessages ? $ts.loading : $ts.loadMore }}
+				<template v-if="fetchingMoreMessages"><i class="fas fa-spinner fa-pulse fa-fw"></i></template>{{ fetchingMoreMessages ? $ts.loading : $ts.loadMore }}
 			</button>
 			<XList class="messages" :items="messages" v-slot="{ item: message }" direction="up" reversed>
 				<XMessage :message="message" :is-group="group != null" :key="message.id"/>
@@ -26,27 +26,26 @@
 			</div>
 			<transition name="fade">
 				<div class="new-message" v-show="showIndicator">
-					<button class="_buttonPrimary" @click="onIndicatorClick"><i><Fa :icon="faArrowCircleDown"/></i>{{ $ts.newMessageExists }}</button>
+					<button class="_buttonPrimary" @click="onIndicatorClick"><i class="fas fa-arrow-circle-down"></i>{{ $ts.newMessageExists }}</button>
 				</div>
 			</transition>
-			<XForm v-if="!fetching" :user="user" :group="group" ref="form"/>
+			<XForm v-if="!fetching" :user="user" :group="group" ref="form" class="form"/>
 		</footer>
 	</div>
 </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
-import { faArrowCircleDown, faFlag, faUsers, faInfoCircle, faEllipsisH, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
-import { faWindowMaximize } from '@fortawesome/free-regular-svg-icons';
-import XList from '@/components/date-separated-list.vue';
+import { computed, defineComponent, markRaw } from 'vue';
+import XList from '@client/components/date-separated-list.vue';
 import XMessage from './messaging-room.message.vue';
 import XForm from './messaging-room.form.vue';
-import parseAcct from '../../../misc/acct/parse';
-import { isBottom, onScrollBottom, scroll } from '@/scripts/scroll';
-import * as os from '@/os';
-import { popout } from '@/scripts/popout';
-import * as sound from '@/scripts/sound';
+import { parseAcct } from '@/misc/acct';
+import { isBottom, onScrollBottom, scroll } from '@client/scripts/scroll';
+import * as os from '@client/os';
+import { popout } from '@client/scripts/popout';
+import * as sound from '@client/scripts/sound';
+import * as symbols from '@client/symbols';
 
 const Component = defineComponent({
 	components: {
@@ -70,18 +69,18 @@ const Component = defineComponent({
 
 	data() {
 		return {
-			INFO: computed(() => !this.fetching ? this.user ? {
+			[symbols.PAGE_INFO]: computed(() => !this.fetching ? this.user ? {
 				userName: this.user,
 				avatar: this.user,
 				action: {
-					icon: faEllipsisH,
+					icon: 'fas fa-ellipsis-h',
 					handler: this.menu,
 				},
 			} : {
 				title: this.group.name,
-				icon: faUsers,
+				icon: 'fas fa-users',
 				action: {
-					icon: faEllipsisH,
+					icon: 'fas fa-ellipsis-h',
 					handler: this.menu,
 				},
 			} : null),
@@ -102,7 +101,6 @@ const Component = defineComponent({
 					&& this.existMoreMessages
 					&& this.fetchMoreMessages()
 			),
-			faArrowCircleDown, faFlag, faInfoCircle
 		};
 	},
 
@@ -143,10 +141,10 @@ const Component = defineComponent({
 				this.group = group;
 			}
 
-			this.connection = os.stream.connectToChannel('messaging', {
+			this.connection = markRaw(os.stream.useChannel('messaging', {
 				otherparty: this.user ? this.user.id : undefined,
 				group: this.group ? this.group.id : undefined,
-			});
+			}));
 
 			this.connection.on('message', this.onMessage);
 			this.connection.on('read', this.onRead);
@@ -322,16 +320,16 @@ const Component = defineComponent({
 		menu(ev) {
 			const path = this.groupId ? `/my/messaging/group/${this.groupId}` : `/my/messaging/${this.userAcct}`;
 
-			os.modalMenu([this.inWindow ? undefined : {
+			os.popupMenu([this.inWindow ? undefined : {
 				text: this.$ts.openInWindow,
-				icon: faWindowMaximize,
+				icon: 'fas fa-window-maximize',
 				action: () => {
 					os.pageWindow(path);
 					this.$router.back();
 				},
 			}, this.inWindow ? undefined : {
 				text: this.$ts.popout,
-				icon: faExternalLinkAlt,
+				icon: 'fas fa-external-link-alt',
 				action: () => {
 					popout(path);
 					this.$router.back();
@@ -355,7 +353,7 @@ export default Component;
 			font-size: 0.8em;
 			opacity: 0.5;
 
-			[data-icon] {
+			i {
 				margin-right: 4px;
 			}
 		}
@@ -369,7 +367,7 @@ export default Component;
 			color: var(--messagingRoomInfo);
 			opacity: 0.5;
 
-			[data-icon] {
+			i {
 				margin-right: 4px;
 			}
 		}
@@ -395,7 +393,7 @@ export default Component;
 				cursor: wait;
 			}
 
-			> [data-icon] {
+			> i {
 				margin-right: 4px;
 			}
 		}
@@ -453,6 +451,10 @@ export default Component;
 					content: " ";
 				}
 			}
+		}
+
+		> .form {
+			border-top: solid 0.5px var(--divider);
 		}
 	}
 }

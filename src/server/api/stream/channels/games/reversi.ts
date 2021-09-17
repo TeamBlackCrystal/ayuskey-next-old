@@ -1,7 +1,7 @@
 import autobind from 'autobind-decorator';
-import { publishMainStream } from '../../../../../services/stream';
+import { publishMainStream } from '@/services/stream';
 import Channel from '../../channel';
-import { ReversiMatchings } from '../../../../../models';
+import { ReversiMatchings } from '@/models/index';
 
 export default class extends Channel {
 	public readonly chName = 'gamesReversi';
@@ -26,7 +26,7 @@ export default class extends Channel {
 					childId: body.id
 				});
 				if (matching == null) return;
-				publishMainStream(matching.childId, 'reversiInvited', await ReversiMatchings.pack(matching, matching.childId));
+				publishMainStream(matching.childId, 'reversiInvited', await ReversiMatchings.pack(matching, { id: matching.childId }));
 				break;
 		}
 	}

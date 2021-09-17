@@ -1,7 +1,7 @@
 import autobind from 'autobind-decorator';
 import Chart, { Obj, DeepPartial } from '../../core';
-import { SchemaType } from '../../../../misc/schema';
-import { Instances } from '../../../../models';
+import { SchemaType } from '@/misc/schema';
+import { Instances } from '@/models/index';
 import { name, schema } from '../schemas/federation';
 
 type FederationLog = SchemaType<typeof schema>;
@@ -17,6 +17,17 @@ export default class FederationChart extends Chart<FederationLog> {
 			instance: {
 				total: latest.instance.total,
 			}
+		};
+	}
+
+	@autobind
+	protected aggregate(logs: FederationLog[]): FederationLog {
+		return {
+			instance: {
+				total: logs[0].instance.total,
+				inc: logs.reduce((a, b) => a + b.instance.inc, 0),
+				dec: logs.reduce((a, b) => a + b.instance.dec, 0),
+			},
 		};
 	}
 

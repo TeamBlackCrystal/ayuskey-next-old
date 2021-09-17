@@ -1,7 +1,7 @@
 import $ from 'cafy';
-import { publishMainStream } from '../../../../services/stream';
+import { publishMainStream } from '@/services/stream';
 import define from '../../define';
-import { Users, UserProfiles } from '../../../../models';
+import { Users, UserProfiles } from '@/models/index';
 
 export const meta = {
 	tags: ['room'],
@@ -46,5 +46,6 @@ export default define(meta, async (ps, user) => {
 	// Publish meUpdated event
 	publishMainStream(user.id, 'meUpdated', iObj);
 
+	// TODO: レスポンスがおかしいと思う by YuzuRyo61
 	return iObj;
 });

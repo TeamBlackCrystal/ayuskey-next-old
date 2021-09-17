@@ -2,10 +2,10 @@ import * as Koa from 'koa';
 import * as bcrypt from 'bcryptjs';
 import * as speakeasy from 'speakeasy';
 import signin from '../common/signin';
-import config from '../../../config';
-import { Users, Signins, UserProfiles, UserSecurityKeys, AttestationChallenges } from '../../../models';
-import { ILocalUser } from '../../../models/entities/user';
-import { genId } from '../../../misc/gen-id';
+import config from '@/config/index';
+import { Users, Signins, UserProfiles, UserSecurityKeys, AttestationChallenges } from '@/models/index';
+import { ILocalUser } from '@/models/entities/user';
+import { genId } from '@/misc/gen-id';
 import { verifyLogin, hash } from '../2fa';
 import { randomBytes } from 'crypto';
 
@@ -39,9 +39,16 @@ export default async (ctx: Koa.Context) => {
 		host: null
 	}) as ILocalUser;
 
-	if (user == null) {
+	if (user == null || user.isSuspended) {
 		ctx.throw(404, {
 			error: 'user not found'
+		});
+		return;
+	}
+
+	if (user.isSuspended) {
+		ctx.throw(403, {
+			error: 'user is suspended'
 		});
 		return;
 	}
@@ -53,7 +60,7 @@ export default async (ctx: Koa.Context) => {
 
 	async function fail(status?: number, failure?: { error: string }) {
 		// Append signin history
-		await Signins.save({
+		await Signins.insert({
 			id: genId(),
 			createdAt: new Date(),
 			userId: user.id,
@@ -198,7 +205,7 @@ export default async (ctx: Koa.Context) => {
 
 		const challengeId = genId();
 
-		await AttestationChallenges.save({
+		await AttestationChallenges.insert({
 			userId: user.id,
 			id: challengeId,
 			challenge: hash(Buffer.from(challenge, 'utf-8')).toString('hex'),

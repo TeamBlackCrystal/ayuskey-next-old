@@ -1,17 +1,12 @@
 import $ from 'cafy';
-import { ID } from '../../../../../misc/cafy-id';
+import { ID } from '@/misc/cafy-id';
 import define from '../../../define';
 import * as ms from 'ms';
-import deleteReaction from '../../../../../services/note/reaction/delete';
+import deleteReaction from '@/services/note/reaction/delete';
 import { getNote } from '../../../common/getters';
 import { ApiError } from '../../../error';
 
 export const meta = {
-	desc: {
-		'ja-JP': '指定した投稿へのリアクションを取り消します。',
-		'en-US': 'Unreact to a note.'
-	},
-
 	tags: ['reactions', 'notes'],
 
 	requireCredential: true as const,
@@ -27,10 +22,6 @@ export const meta = {
 	params: {
 		noteId: {
 			validator: $.type(ID),
-			desc: {
-				'ja-JP': '対象の投稿のID',
-				'en-US': 'Target note ID'
-			}
 		},
 	},
 

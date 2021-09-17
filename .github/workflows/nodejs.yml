@@ -7,7 +7,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
 
     services:
       postgres:
@@ -24,11 +24,31 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: yarn install
+    - name: Check yarn.lock
+      run: git diff --exit-code yarn.lock
+    - name: Copy Configure
+      run: cp test/test.yml .config/
+    - name: Build
+      run: yarn build
+    - name: Test
+      run: yarn test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
     - run: yarn install
-    - run: yarn build
-    - run: cp test/test.yml .config/
-    - run: yarn test
+    - run: yarn lint

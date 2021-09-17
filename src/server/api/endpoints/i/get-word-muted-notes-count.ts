@@ -1,5 +1,5 @@
 import define from '../../define';
-import { MutedNotes } from '../../../../models';
+import { MutedNotes } from '@/models/index';
 
 export const meta = {
 	tags: ['account'],
@@ -9,6 +9,17 @@ export const meta = {
 	kind: 'read:account',
 
 	params: {
+	},
+
+	res: {
+		type: 'object' as const,
+		optional: false as const, nullable: false as const,
+		properties: {
+			count: {
+				type: 'number' as const,
+				optional: false as const, nullable: false as const
+			}
+		}
 	}
 };
 

@@ -1,7 +1,7 @@
 <template>
 <div class="mkw-jobQueue _monospace" :class="{ _panel: !props.transparent }">
 	<div class="inbox">
-		<div class="label">Inbox queue<Fa :icon="faExclamationTriangle" v-if="inbox.waiting > 0" class="icon"/></div>
+		<div class="label">Inbox queue<i v-if="inbox.waiting > 0" class="fas fa-exclamation-triangle icon"></i></div>
 		<div class="values">
 			<div>
 				<div>Process</div>
@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<div class="deliver">
-		<div class="label">Deliver queue<Fa :icon="faExclamationTriangle" v-if="inbox.waiting > 0" class="icon"/></div>
+		<div class="label">Deliver queue<i v-if="deliver.waiting > 0" class="fas fa-exclamation-triangle icon"></i></div>
 		<div class="values">
 			<div>
 				<div>Process</div>
@@ -46,16 +46,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { defineComponent, markRaw } from 'vue';
 import define from './define';
-import * as os from '@/os';
-import number from '@/filters/number';
+import * as os from '@client/os';
+import number from '@client/filters/number';
+import * as sound from '@client/scripts/sound';
 
 const widget = define({
 	name: 'jobQueue',
 	props: () => ({
 		transparent: {
+			type: 'boolean',
+			default: false,
+		},
+		sound: {
 			type: 'boolean',
 			default: false,
 		},
@@ -66,7 +70,7 @@ export default defineComponent({
 	extends: widget,
 	data() {
 		return {
-			connection: os.stream.useSharedConnection('queueStats'),
+			connection: markRaw(os.stream.useChannel('queueStats')),
 			inbox: {
 				activeSincePrevTick: 0,
 				active: 0,
@@ -80,7 +84,7 @@ export default defineComponent({
 				delayed: 0,
 			},
 			prev: {},
-			faExclamationTriangle,
+			sound: sound.setVolume(sound.getAudio('syuilo/queue-jammed'), 1)
 		};
 	},
 	created() {
@@ -109,6 +113,10 @@ export default defineComponent({
 				this[domain].active = stats[domain].active;
 				this[domain].waiting = stats[domain].waiting;
 				this[domain].delayed = stats[domain].delayed;
+
+				if (this[domain].waiting > 0 && this.props.sound && this.sound.paused) {
+					this.sound.play();
+				}
 			}
 		},
 
@@ -136,7 +144,7 @@ export default defineComponent({
 		padding: 16px;
 
 		&:not(:first-child) {
-			border-top: solid 1px var(--divider);
+			border-top: solid 0.5px var(--divider);
 		}
 
 		> .label {

@@ -1,6 +1,6 @@
 import autobind from 'autobind-decorator';
 import Channel from '../channel';
-import { Notes } from '../../../../models';
+import { Notes } from '@/models/index';
 
 export default class extends Channel {
 	public readonly chName = 'main';
@@ -18,18 +18,22 @@ export default class extends Channel {
 				case 'notification': {
 					if (this.muting.has(body.userId)) return;
 					if (body.note && body.note.isHidden) {
-						body.note = await Notes.pack(body.note.id, this.user, {
+						const note = await Notes.pack(body.note.id, this.user, {
 							detail: true
 						});
+						this.connection.cacheNote(note);
+						body.note = note;
 					}
 					break;
 				}
 				case 'mention': {
 					if (this.muting.has(body.userId)) return;
 					if (body.isHidden) {
-						body = await Notes.pack(body.id, this.user, {
+						const note = await Notes.pack(body.id, this.user, {
 							detail: true
 						});
+						this.connection.cacheNote(note);
+						body = note;
 					}
 					break;
 				}

@@ -1,15 +1,15 @@
-import { publishNoteStream } from '../../stream';
-import { renderLike } from '../../../remote/activitypub/renderer/like';
-import renderUndo from '../../../remote/activitypub/renderer/undo';
-import { renderActivity } from '../../../remote/activitypub/renderer';
-import DeliverManager from '../../../remote/activitypub/deliver-manager';
-import { IdentifiableError } from '../../../misc/identifiable-error';
-import { User, IRemoteUser } from '../../../models/entities/user';
-import { Note } from '../../../models/entities/note';
-import { NoteReactions, Users, Notes } from '../../../models';
-import { decodeReaction } from '../../../misc/reaction-lib';
+import { publishNoteStream } from '@/services/stream';
+import { renderLike } from '@/remote/activitypub/renderer/like';
+import renderUndo from '@/remote/activitypub/renderer/undo';
+import { renderActivity } from '@/remote/activitypub/renderer/index';
+import DeliverManager from '@/remote/activitypub/deliver-manager';
+import { IdentifiableError } from '@/misc/identifiable-error';
+import { User, IRemoteUser } from '@/models/entities/user';
+import { Note } from '@/models/entities/note';
+import { NoteReactions, Users, Notes } from '@/models/index';
+import { decodeReaction } from '@/misc/reaction-lib';
 
-export default async (user: User, note: Note) => {
+export default async (user: { id: User['id']; host: User['host']; }, note: Note) => {
 	// if already unreacted
 	const exist = await NoteReactions.findOne({
 		noteId: note.id,

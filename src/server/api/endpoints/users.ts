@@ -1,7 +1,8 @@
 import $ from 'cafy';
 import define from '../define';
-import { Users } from '../../../models';
+import { Users } from '@/models/index';
 import { generateMutedUserQueryForUsers } from '../common/generate-muted-user-query';
+import { generateBlockQueryForUsers } from '../common/generate-block-query';
 
 export const meta = {
 	tags: ['users'],
@@ -69,7 +70,7 @@ export default define(meta, async (ps, me) => {
 	switch (ps.state) {
 		case 'admin': query.andWhere('user.isAdmin = TRUE'); break;
 		case 'moderator': query.andWhere('user.isModerator = TRUE'); break;
-		case 'adminOrModerator': query.andWhere('user.isAdmin = TRUE OR isModerator = TRUE'); break;
+		case 'adminOrModerator': query.andWhere('user.isAdmin = TRUE OR user.isModerator = TRUE'); break;
 		case 'alive': query.andWhere('user.updatedAt > :date', { date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5) }); break;
 	}
 
@@ -89,6 +90,7 @@ export default define(meta, async (ps, me) => {
 	}
 
 	if (me) generateMutedUserQueryForUsers(query, me);
+	if (me) generateBlockQueryForUsers(query, me);
 
 	query.take(ps.limit!);
 	query.skip(ps.offset);

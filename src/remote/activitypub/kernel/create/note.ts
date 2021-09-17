@@ -1,9 +1,9 @@
 import Resolver from '../../resolver';
-import { IRemoteUser } from '../../../../models/entities/user';
+import { IRemoteUser } from '@/models/entities/user';
 import { createNote, fetchNote } from '../../models/note';
 import { getApId, IObject, ICreate } from '../../type';
-import { getApLock } from '../../../../misc/app-lock';
-import { extractDbHost } from '../../../../misc/convert-host';
+import { getApLock } from '@/misc/app-lock';
+import { extractDbHost } from '@/misc/convert-host';
 
 /**
  * 投稿作成アクティビティを捌きます

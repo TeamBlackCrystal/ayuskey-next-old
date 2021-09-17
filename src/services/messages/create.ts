@@ -1,20 +1,20 @@
-import { User } from '../../models/entities/user';
-import { UserGroup } from '../../models/entities/user-group';
-import { DriveFile } from '../../models/entities/drive-file';
-import { MessagingMessages, UserGroupJoinings, Mutings, Users } from '../../models';
-import { genId } from '../../misc/gen-id';
-import { MessagingMessage } from '../../models/entities/messaging-message';
-import { publishMessagingStream, publishMessagingIndexStream, publishMainStream, publishGroupMessagingStream } from '../stream';
+import { User } from '@/models/entities/user';
+import { UserGroup } from '@/models/entities/user-group';
+import { DriveFile } from '@/models/entities/drive-file';
+import { MessagingMessages, UserGroupJoinings, Mutings, Users } from '@/models/index';
+import { genId } from '@/misc/gen-id';
+import { MessagingMessage } from '@/models/entities/messaging-message';
+import { publishMessagingStream, publishMessagingIndexStream, publishMainStream, publishGroupMessagingStream } from '@/services/stream';
 import pushNotification from '../push-notification';
 import { Not } from 'typeorm';
-import { Note } from '../../models/entities/note';
-import renderNote from '../../remote/activitypub/renderer/note';
-import renderCreate from '../../remote/activitypub/renderer/create';
-import { renderActivity } from '../../remote/activitypub/renderer';
-import { deliver } from '../../queue';
+import { Note } from '@/models/entities/note';
+import renderNote from '@/remote/activitypub/renderer/note';
+import renderCreate from '@/remote/activitypub/renderer/create';
+import { renderActivity } from '@/remote/activitypub/renderer/index';
+import { deliver } from '@/queue/index';
 
-export async function createMessage(user: User, recipientUser: User | undefined, recipientGroup: UserGroup | undefined, text: string | undefined, file: DriveFile | null, uri?: string) {
-	const message = await MessagingMessages.save({
+export async function createMessage(user: { id: User['id']; host: User['host']; }, recipientUser: User | undefined, recipientGroup: UserGroup | undefined, text: string | undefined, file: DriveFile | null, uri?: string) {
+	const message = {
 		id: genId(),
 		createdAt: new Date(),
 		fileId: file ? file.id : null,
@@ -25,7 +25,9 @@ export async function createMessage(user: User, recipientUser: User | undefined,
 		isRead: false,
 		reads: [] as any[],
 		uri
-	} as MessagingMessage);
+	} as MessagingMessage;
+
+	await MessagingMessages.insert(message);
 
 	const messageObj = await MessagingMessages.pack(message);
 

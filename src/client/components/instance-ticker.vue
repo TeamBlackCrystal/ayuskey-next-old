@@ -12,8 +12,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { query as urlQuery } from '../../prelude/url';
-import { instanceHost } from '@/config';
-let iconUrl
+//import { instanceHost } from '@/config';
+import { host } from '@client/config';
+//let iconUrl
 
 type II = {
 	host?: string;
@@ -29,8 +30,8 @@ export default defineComponent({
 	data() {
 		return {
 			urlQuery,
-			instanceHost,
-			iconUrl
+			host,
+			iconUrl: ''
 		}
 	},
 	computed: {
@@ -46,6 +47,19 @@ export default defineComponent({
 			}
 		},
 	},
+	mounted() {
+		this.iconUrl = `https://${host}/proxy/icon.ico?${urlQuery({ url: this.instance.faviconUrl })}`
+
+		if (this.instance.softwareName == undefined) {
+      return
+		} else if (this.instance.softwareName === 'misskey' && this.instance.softwareVersion && this.instance.softwareVersion.includes('-gp-')) { 
+			this.instance!.softwareName = 'groundpolis';
+		} else if (this.instance.softwareName === 'misskey' && this.instance.softwareVersion && this.instance.softwareVersion.includes('-rei0784-')) { 
+			this.instance!.softwareName = 'ayuskey';
+		} else if (this.instance.softwareName === 'misskey' && this.instance.softwareVersion && this.instance.softwareVersion.includes('-m544')) { 
+			this.instance!.softwareName = 'meisskey';
+		}
+	},
 	methods: {
 		getName(instance: II): string {
 			if (!instance) return 'Unknown';
@@ -58,19 +72,6 @@ export default defineComponent({
 			}
 			return s;
 		},
-	},
-	mounted() {
-		this.iconUrl = `https://${instanceHost}/proxy/icon.ico?${urlQuery({ url: this.instance.faviconUrl })}`
-
-		if (this.instance.softwareName == undefined) {
-      return
-		} else if (this.instance.softwareName === 'misskey' && this.instance.softwareVersion && this.instance.softwareVersion.includes('-gp-')) { 
-			this.instance.softwareName = 'groundpolis';
-		} else if (this.instance.softwareName === 'misskey' && this.instance.softwareVersion && this.instance.softwareVersion.includes('-rei0784-')) { 
-			this.instance.softwareName = 'ayuskey';
-		} else if (this.instance.softwareName === 'misskey' && this.instance.softwareVersion && this.instance.softwareVersion.includes('-m544')) { 
-			this.instance.softwareName = 'meisskey';
-		}
 	}
 });
 </script>

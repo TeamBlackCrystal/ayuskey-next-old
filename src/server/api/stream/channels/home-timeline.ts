@@ -1,9 +1,10 @@
 import autobind from 'autobind-decorator';
-import { isMutedUserRelated } from '../../../../misc/is-muted-user-related';
+import { isMutedUserRelated } from '@/misc/is-muted-user-related';
 import Channel from '../channel';
-import { Notes } from '../../../../models';
-import { PackedNote } from '../../../../models/repositories/note';
-import { checkWordMute } from '../../../../misc/check-word-mute';
+import { Notes } from '@/models/index';
+import { PackedNote } from '@/models/repositories/note';
+import { checkWordMute } from '@/misc/check-word-mute';
+import { isBlockerUserRelated } from '@/misc/is-blocker-user-related';
 
 export default class extends Channel {
 	public readonly chName = 'homeTimeline';
@@ -50,12 +51,15 @@ export default class extends Channel {
 
 		// 関係ない返信は除外
 		if (note.reply) {
+			const reply = note.reply;
 			// 「チャンネル接続主への返信」でもなければ、「チャンネル接続主が行った返信」でもなければ、「投稿者の投稿者自身への返信」でもない場合
-			if (note.reply.userId !== this.user!.id && note.userId !== this.user!.id && note.reply.userId !== note.userId) return;
+			if (reply.userId !== this.user!.id && note.userId !== this.user!.id && reply.userId !== note.userId) return;
 		}
 
 		// 流れてきたNoteがミュートしているユーザーが関わるものだったら無視する
 		if (isMutedUserRelated(note, this.muting)) return;
+		// 流れてきたNoteがブロックされているユーザーが関わるものだったら無視する
+		if (isBlockerUserRelated(note, this.blocking)) return;
 
 		// 流れてきたNoteがミュートすべきNoteだったら無視する
 		// TODO: 将来的には、単にMutedNoteテーブルにレコードがあるかどうかで判定したい(以下の理由により難しそうではある)
@@ -63,6 +67,8 @@ export default class extends Channel {
 		// レコードが追加されるNoteでも追加されるより先にここのストリーミングの処理に到達することが起こる。
 		// そのためレコードが存在するかのチェックでは不十分なので、改めてcheckWordMuteを呼んでいる
 		if (this.userProfile && await checkWordMute(note, this.user, this.userProfile.mutedWords)) return;
+
+		this.connection.cacheNote(note);
 
 		this.send('note', note);
 	}

@@ -1,14 +1,9 @@
 import $ from 'cafy';
 import define from '../../../define';
-import { Polls, Mutings, Notes, PollVotes } from '../../../../../models';
+import { Polls, Mutings, Notes, PollVotes } from '@/models/index';
 import { Brackets, In } from 'typeorm';
 
 export const meta = {
-	desc: {
-		'ja-JP': 'おすすめのアンケート一覧を取得します。',
-		'en-US': 'Get recommended polls.'
-	},
-
 	tags: ['notes'],
 
 	requireCredential: true as const,
@@ -22,6 +17,16 @@ export const meta = {
 		offset: {
 			validator: $.optional.num.min(0),
 			default: 0
+		}
+	},
+
+	res: {
+		type: 'array' as const,
+		optional: false as const, nullable: false as const,
+		items: {
+			type: 'object' as const,
+			optional: false as const, nullable: false as const,
+			ref: 'Note'
 		}
 	}
 };

@@ -4,6 +4,7 @@
 
 import * as fs from 'fs';
 import * as webpack from 'webpack';
+import rndstr from 'rndstr';
 const { VueLoaderPlugin } = require('vue-loader');
 const TerserPlugin = require('terser-webpack-plugin');
 const { execSync } = require('child_process')
@@ -74,7 +75,7 @@ module.exports = {
 					options: {
 						implementation: require('sass'),
 						sassOptions: {
-							fiber: require('fibers')
+							fiber: false
 						}
 					}
 				}]
@@ -92,7 +93,7 @@ module.exports = {
 					options: {
 						implementation: require('sass'),
 						sassOptions: {
-							fiber: require('fibers')
+							fiber: false
 						}
 					}
 				}]
@@ -108,8 +109,14 @@ module.exports = {
 				}
 			}, postcss]
 		}, {
+			test: /\.svg$/,
+			use: [
+				'vue-loader',
+				'vue-svg-loader',
+			],
+		}, {
 			test: /\.(eot|woff|woff2|svg|ttf)([?]?.*)$/,
-			loader: 'url-loader'
+			type: 'asset/resource'
 		}, {
 			test: /\.json5$/,
 			loader: 'json5-loader',
@@ -151,7 +158,7 @@ module.exports = {
 		}),
 	],
 	output: {
-		path: __dirname + '/built/client/assets',
+		path: __dirname + '/built/assets',
 		filename: `[name].${version}.js`,
 		publicPath: `/assets/`,
 		pathinfo: false,
@@ -161,7 +168,9 @@ module.exports = {
 			'.js', '.ts', '.json'
 		],
 		alias: {
-			'@': __dirname + '/src/client',
+			'@client': __dirname + '/src/client',
+			'@lib': __dirname + '/lib',
+			'@': __dirname + '/src',
 			'const.styl': __dirname + '/src/client/const.styl'
 		}
 	},

@@ -1,8 +1,9 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { Users } from '..';
-import { Muting } from '../entities/muting';
-import { awaitAll } from '../../prelude/await-all';
-import { SchemaType } from '../../misc/schema';
+import { Users } from '../index';
+import { Muting } from '@/models/entities/muting';
+import { awaitAll } from '@/prelude/await-all';
+import { SchemaType } from '@/misc/schema';
+import { User } from '@/models/entities/user';
 
 export type PackedMuting = SchemaType<typeof packedMutingSchema>;
 
@@ -10,7 +11,7 @@ export type PackedMuting = SchemaType<typeof packedMutingSchema>;
 export class MutingRepository extends Repository<Muting> {
 	public async pack(
 		src: Muting['id'] | Muting,
-		me?: any
+		me?: { id: User['id'] } | null | undefined
 	): Promise<PackedMuting> {
 		const muting = typeof src === 'object' ? src : await this.findOneOrFail(src);
 
@@ -26,7 +27,7 @@ export class MutingRepository extends Repository<Muting> {
 
 	public packMany(
 		mutings: any[],
-		me: any
+		me: { id: User['id'] }
 	) {
 		return Promise.all(mutings.map(x => this.pack(x, me)));
 	}
@@ -40,14 +41,12 @@ export const packedMutingSchema = {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'id',
-			description: 'The unique identifier for this muting.',
 			example: 'xxxxxxxxxx',
 		},
 		createdAt: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'date-time',
-			description: 'The date that the muting was created.'
 		},
 		muteeId: {
 			type: 'string' as const,
@@ -57,8 +56,7 @@ export const packedMutingSchema = {
 		mutee: {
 			type: 'object' as const,
 			optional: false as const, nullable: false as const,
-			ref: 'User',
-			description: 'The mutee.'
+			ref: 'User' as const,
 		},
 	}
 };

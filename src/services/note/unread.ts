@@ -1,8 +1,8 @@
-import { Note } from '../../models/entities/note';
-import { publishMainStream } from '../stream';
-import { User } from '../../models/entities/user';
-import { Mutings, NoteUnreads } from '../../models';
-import { genId } from '../../misc/gen-id';
+import { Note } from '@/models/entities/note';
+import { publishMainStream } from '@/services/stream';
+import { User } from '@/models/entities/user';
+import { Mutings, NoteUnreads } from '@/models/index';
+import { genId } from '@/misc/gen-id';
 
 export default async function(userId: User['id'], note: Note, params: {
 	// NOTE: isSpecifiedがtrueならisMentionedは必ずfalse
@@ -17,7 +17,7 @@ export default async function(userId: User['id'], note: Note, params: {
 	if (mute.map(m => m.muteeId).includes(note.userId)) return;
 	//#endregion
 
-	const unread = await NoteUnreads.insert({
+	const unread = {
 		id: genId(),
 		noteId: note.id,
 		userId: userId,
@@ -25,7 +25,9 @@ export default async function(userId: User['id'], note: Note, params: {
 		isMentioned: params.isMentioned,
 		noteChannelId: note.channelId,
 		noteUserId: note.userId,
-	}).then(x => NoteUnreads.findOneOrFail(x.identifiers[0]));
+	};
+
+	await NoteUnreads.insert(unread);
 
 	// 2秒経っても既読にならなかったら「未読の投稿がありますよ」イベントを発行する
 	setTimeout(async () => {

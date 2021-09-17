@@ -1,9 +1,9 @@
-import { publishNoteStream } from '../../stream';
-import { User } from '../../../models/entities/user';
-import { Note } from '../../../models/entities/note';
-import { PollVotes, NoteWatchings, Polls } from '../../../models';
+import { publishNoteStream } from '@/services/stream';
+import { User } from '@/models/entities/user';
+import { Note } from '@/models/entities/note';
+import { PollVotes, NoteWatchings, Polls, Blockings } from '@/models/index';
 import { Not } from 'typeorm';
-import { genId } from '../../../misc/gen-id';
+import { genId } from '@/misc/gen-id';
 import { createNotification } from '../../create-notification';
 
 export default async function(user: User, note: Note, choice: number) {
@@ -13,6 +13,17 @@ export default async function(user: User, note: Note, choice: number) {
 
 	// Check whether is valid choice
 	if (poll.choices[choice] == null) throw new Error('invalid choice param');
+
+	// Check blocking
+	if (note.userId !== user.id) {
+		const block = await Blockings.findOne({
+			blockerId: note.userId,
+			blockeeId: user.id,
+		});
+		if (block) {
+			throw new Error('blocked');
+		}
+	}
 
 	// if already voted
 	const exist = await PollVotes.find({
@@ -29,7 +40,7 @@ export default async function(user: User, note: Note, choice: number) {
 	}
 
 	// Create vote
-	await PollVotes.save({
+	await PollVotes.insert({
 		id: genId(),
 		createdAt: new Date(),
 		noteId: note.id,

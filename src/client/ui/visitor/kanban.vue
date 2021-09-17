@@ -28,7 +28,7 @@
 				</div>
 				<div class="powered-by" v-if="poweredBy">
 					<b><MkA to="/">{{ host }}</MkA></b>
-					<small>Powered by <a href="https://github.com/syuilo/misskey" target="_blank">Misskey</a></small>
+					<small>Powered by <a href="https://github.com/misskey-dev/misskey" target="_blank">Misskey</a></small>
 				</div>
 			</template>
 		</div>
@@ -38,13 +38,12 @@
 
 <script lang="ts">
 import { defineComponent, defineAsyncComponent } from 'vue';
-import { } from '@fortawesome/free-solid-svg-icons';
-import { host, instanceName } from '@/config';
-import * as os from '@/os';
-import MkPagination from '@/components/ui/pagination.vue';
-import XSigninDialog from '@/components/signin-dialog.vue';
-import XSignupDialog from '@/components/signup-dialog.vue';
-import MkButton from '@/components/ui/button.vue';
+import { host, instanceName } from '@client/config';
+import * as os from '@client/os';
+import MkPagination from '@client/components/ui/pagination.vue';
+import XSigninDialog from '@client/components/signin-dialog.vue';
+import XSignupDialog from '@client/components/signup-dialog.vue';
+import MkButton from '@client/components/ui/button.vue';
 
 export default defineComponent({
 	components: {
@@ -123,8 +122,8 @@ export default defineComponent({
 		background: rgba(0, 0, 0, 0.3);
 
 		&.transparent {
-			-webkit-backdrop-filter: blur(12px);
-			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: var(--blur, blur(12px));
+			backdrop-filter: var(--blur, blur(12px));
 		}
 	}
 
@@ -141,8 +140,8 @@ export default defineComponent({
 			margin: 0 auto;
 
 			> .panel {
-				-webkit-backdrop-filter: blur(8px);
-				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: var(--blur, blur(8px));
+				backdrop-filter: var(--blur, blur(8px));
 				background: rgba(0, 0, 0, 0.5);
 				border-radius: var(--radius);
 

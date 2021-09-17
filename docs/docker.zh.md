@@ -12,13 +12,13 @@ Docker 部署指南
 ----------------------------------------------------------------
 1. 克隆 Misskey 项目的 master 分支。
 
-	`git clone -b master git://github.com/syuilo/misskey.git`
+	`git clone -b master git://github.com/misskey-dev/misskey.git`
 
 2. 进入 misskey 文件夹。
 
 	`cd misskey`
 
-3. 检查 [最新发布版](https://github.com/syuilo/misskey/releases/latest) 标签。
+3. 检查 [最新发布版](https://github.com/misskey-dev/misskey/releases/latest) 标签。
 
 	`git checkout master`
 
@@ -83,10 +83,11 @@ docker-compose run --rm web yarn run init
 1. `git stash`
 2. `git checkout master`
 3. `git pull`
-4. `git stash pop`
-5. `docker-compose build`
-6. 检查 [更新日志](../CHANGELOG.md) 以获取升级迁移信息。
-7. `docker-compose stop && docker-compose up -d`
+4. `git submodule update --init`
+5. `git stash pop`
+6. `docker-compose build`
+7. 检查 [更新日志](../CHANGELOG.md) 以获取升级迁移信息。
+8. `docker-compose stop && docker-compose up -d`
 
 ### 如何执行 [控制台指令](manage.zh.md):
 `docker-compose run --rm web node built/tools/mark-admin @example`

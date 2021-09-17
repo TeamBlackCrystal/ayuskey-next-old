@@ -12,13 +12,13 @@ Dockerを使ったMisskey構築方法
 ----------------------------------------------------------------
 1. masterブランチからMisskeyレポジトリをクローン
 
-	`git clone -b master git://github.com/syuilo/misskey.git`
+	`git clone -b master git://github.com/misskey-dev/misskey.git`
 
 2. misskeyディレクトリに移動
 
 	`cd misskey`
 
-3. [最新のリリース](https://github.com/syuilo/misskey/releases/latest)を確認
+3. [最新のリリース](https://github.com/misskey-dev/misskey/releases/latest)を確認
 
 	`git checkout master`
 
@@ -36,8 +36,8 @@ cp docker_example.env docker.env
 ### `default.yml`の編集
 
 非Docker環境と同じ様に編集してください。  
-ただし、Postgresql、RedisとElasticsearchのホストは`localhost`ではなく、`docker-compose.yml`で設定されたサービス名になっています。  
-標準設定では次の通りです。
+ただし、`default.yml`のPostgresql, Redis, Elasticsearchのホスト名は、`localhost`ではなく`docker-compose.yml`のサービス名にする必要があります。  
+標準の`docker-compose.yml`を使用している場合は、以下の値を使用します。
 
 | サービス       | ホスト名 |
 |---------------|---------|
@@ -83,10 +83,11 @@ docker-compose run --rm web yarn run init
 1. `git stash`
 2. `git checkout master`
 3. `git pull`
-4. `git stash pop`
-5. `docker-compose build`
-6. [ChangeLog](../CHANGELOG.md)でマイグレーション情報を確認する
-7. `docker-compose stop && docker-compose up -d`
+4. `git submodule update --init`
+5. `git stash pop`
+6. `docker-compose build`
+7. [ChangeLog](../CHANGELOG.md)でマイグレーション情報を確認する
+8. `docker-compose stop && docker-compose up -d`
 
 ### cliコマンドを実行する方法:
 

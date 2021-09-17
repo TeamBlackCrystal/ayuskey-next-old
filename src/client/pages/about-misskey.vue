@@ -1,31 +1,31 @@
 <template>
-<div style="overflow: hidden;">
+<div style="overflow: clip;">
 	<FormBase class="znqjceqz">
 		<div id="debug"></div>
 		<section class="_formItem about">
 			<div class="_formPanel panel" :class="{ playing: easterEggEngine != null }" ref="about">
-				<img src="/assets/about-icon.png" alt="" class="icon" ref="icon" @load="iconLoaded" draggable="false"/>
+				<img src="/static-assets/client/about-icon.png" alt="" class="icon" @load="iconLoaded" draggable="false" @click="gravity"/>
 				<div class="misskey">Misskey</div>
 				<div class="version">v{{ version }}</div>
 				<span class="emoji" v-for="emoji in easterEggEmojis" :key="emoji.id" :data-physics-x="emoji.left" :data-physics-y="emoji.top" :class="{ _physics_circle_: !emoji.emoji.startsWith(':') }"><MkEmoji class="emoji" :emoji="emoji.emoji" :custom-emojis="$instance.emojis" :is-reaction="false" :normal="true" :no-style="true"/></span>
 			</div>
 		</section>
-		<section class="_formItem" style="text-align: center; padding: 0 16px;" @click="gravity">
-			{{ $ts._aboutMisskey.about }}
+		<section class="_formItem" style="text-align: center; padding: 0 16px;">
+			{{ $ts._aboutMisskey.about }}<br><MkA class="_link" to="/docs/general/misskey">{{ $ts.learnMore }}</MkA>
 		</section>
 		<FormGroup>
-			<FormLink to="https://github.com/syuilo/misskey" external>
-				<template #icon><Fa :icon="faCode"/></template>
+			<FormLink to="https://github.com/misskey-dev/misskey" external>
+				<template #icon><i class="fas fa-code"></i></template>
 				{{ $ts._aboutMisskey.source }}
 				<template #suffix>GitHub</template>
 			</FormLink>
 			<FormLink to="https://crowdin.com/project/misskey" external>
-				<template #icon><Fa :icon="faLanguage"/></template>
+				<template #icon><i class="fas fa-language"></i></template>
 				{{ $ts._aboutMisskey.translation }}
 				<template #suffix>Crowdin</template>
 			</FormLink>
 			<FormLink to="https://www.patreon.com/syuilo" external>
-				<template #icon><Fa :icon="faHandHoldingMedical"/></template>
+				<template #icon><i class="fas fa-hand-holding-medical"></i></template>
 				{{ $ts._aboutMisskey.donate }}
 				<template #suffix>Patreon</template>
 			</FormLink>
@@ -40,7 +40,8 @@
 			<FormLink to="https://github.com/rinsuki" external>@rinsuki</FormLink>
 			<FormLink to="https://github.com/Xeltica" external>@Xeltica</FormLink>
 			<FormLink to="https://github.com/u1-liquid" external>@u1-liquid</FormLink>
-			<template #caption><MkLink url="https://github.com/syuilo/misskey/graphs/contributors">{{ $ts._aboutMisskey.allContributors }}</MkLink></template>
+			<FormLink to="https://github.com/marihachi" external>@marihachi</FormLink>
+			<template #caption><MkLink url="https://github.com/misskey-dev/misskey/graphs/contributors">{{ $ts._aboutMisskey.allContributors }}</MkLink></template>
 		</FormGroup>
 		<FormGroup>
 			<template #label><Mfm text="[jelly ❤]"/> {{ $ts._aboutMisskey.patrons }}</template>
@@ -53,54 +54,70 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { faInfoCircle, faCode, faLanguage, faHandHoldingMedical, } from '@fortawesome/free-solid-svg-icons';
-import VanillaTilt from 'vanilla-tilt';
-import { version } from '@/config';
-import FormLink from '@/components/form/link.vue';
-import FormBase from '@/components/form/base.vue';
-import FormGroup from '@/components/form/group.vue';
-import FormKeyValueView from '@/components/form/key-value-view.vue';
-import MkLink from '@/components/link.vue';
-import { physics } from '@/scripts/physics.ts';
-import * as os from '@/os';
+import { version } from '@client/config';
+import FormLink from '@client/components/form/link.vue';
+import FormBase from '@client/components/form/base.vue';
+import FormGroup from '@client/components/form/group.vue';
+import FormKeyValueView from '@client/components/form/key-value-view.vue';
+import MkLink from '@client/components/link.vue';
+import { physics } from '@client/scripts/physics';
+import * as symbols from '@client/symbols';
 
 const patrons = [
 	'Satsuki Yanagi',
 	'noellabo',
-	'Gargron',
-	'Atsuko Tominaga',
+	'mametsuko',
 	'AureoleArk',
+	'Gargron',
+	'Nokotaro Takeda',
+	'Suji Yan',
+	'Hekovic',
+	'Gitmo Life Services',
+	'nenohi',
 	'naga_rus',
 	'Melilot',
-	'Hekovic',
-	'Nokotaro Takeda',
-	'dansup',
-	'nenohi',
-	'motcha',
-	'nanami kan',
-	'Eduardo Quiros',
-	'Peter G.',
-	'YUKIMOCHI',
 	'Efertone',
-	'makokunsan',
+	'oi_yekssim',
+	'nanami kan',
+	'motcha',
+	'dansup',
+	'Quinton Macejkovic',
+	'YUKIMOCHI',
 	'mewl hayabusa',
+	'makokunsan',
+	'Peter G.',
+	'Nesakko',
+	'regtan',
 	'見当かなみ',
 	'natalie',
+	'Jerry',
 	'takimura',
 	'sikyosyounin',
-	'weepjp',
-	'mydarkstar',
-	'Nesakko',
+	'YuzuRyo61',
 	'sheeta.s',
 	'osapon',
-	'YuzuRyo61',
-	'wara',
 	'mkatze',
-	'kiritan',
 	'CG',
+	'nafuchoco',
+	'Takumi Sugita',
+	'chidori ninokura',
+	'mydarkstar',
+	'kiritan',
+	'kabo2468y',
+	'weepjp',
+	'Liaizon Wakest',
+	'Steffen K9',
+	'Roujo',
+	'uroco @99',
+	'totokoro',
+	'public_yusuke',
+	'wara',
+	'S Y',
 	'Denshi',
 	'Osushimaru',
-	'Liaizon Wakest',
+	'吴浥',
+	'DignifiedSilence',
+	't_w',
 ];
 
 export default defineComponent({
@@ -114,7 +131,7 @@ export default defineComponent({
 
 	data() {
 		return {
-			INFO: {
+			[symbols.PAGE_INFO]: {
 				title: this.$ts.aboutMisskey,
 				icon: null
 			},
@@ -123,17 +140,7 @@ export default defineComponent({
 			easterEggReady: false,
 			easterEggEmojis: [],
 			easterEggEngine: null,
-			faInfoCircle, faCode, faLanguage, faHandHoldingMedical,
 		}
-	},
-
-	mounted() {
-		VanillaTilt.init(this.$refs.icon, {
-			max: 30,
-			perspective: 500,
-			scale: 1.125,
-			speed: 1000,
-		});
 	},
 
 	beforeUnmount() {
@@ -163,7 +170,6 @@ export default defineComponent({
 		gravity() {
 			if (!this.easterEggReady) return;
 			this.easterEggReady = false;
-			this.$refs.icon.vanillaTilt.destroy();
 			this.easterEggEngine = physics(this.$refs.about);
 		}
 	}

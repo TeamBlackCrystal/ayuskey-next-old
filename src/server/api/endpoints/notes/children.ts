@@ -1,18 +1,14 @@
 import $ from 'cafy';
-import { ID } from '../../../../misc/cafy-id';
+import { ID } from '@/misc/cafy-id';
 import define from '../../define';
 import { makePaginationQuery } from '../../common/make-pagination-query';
 import { generateVisibilityQuery } from '../../common/generate-visibility-query';
 import { generateMutedUserQuery } from '../../common/generate-muted-user-query';
 import { Brackets } from 'typeorm';
-import { Notes } from '../../../../models';
+import { Notes } from '@/models/index';
+import { generateBlockedUserQuery } from '../../common/generate-block-query';
 
 export const meta = {
-	desc: {
-		'ja-JP': '指定した投稿への返信/引用を取得します。',
-		'en-US': 'Get replies/quotes of a note.'
-	},
-
 	tags: ['notes'],
 
 	requireCredential: false as const,
@@ -20,10 +16,6 @@ export const meta = {
 	params: {
 		noteId: {
 			validator: $.type(ID),
-			desc: {
-				'ja-JP': '対象の投稿のID',
-				'en-US': 'Target note ID'
-			}
 		},
 
 		limit: {
@@ -64,10 +56,15 @@ export default define(meta, async (ps, user) => {
 				}));
 			}));
 		}))
-		.leftJoinAndSelect('note.user', 'user');
+		.innerJoinAndSelect('note.user', 'user')
+		.leftJoinAndSelect('note.reply', 'reply')
+		.leftJoinAndSelect('note.renote', 'renote')
+		.leftJoinAndSelect('reply.user', 'replyUser')
+		.leftJoinAndSelect('renote.user', 'renoteUser');
 
 	generateVisibilityQuery(query, user);
 	if (user) generateMutedUserQuery(query, user);
+	if (user) generateBlockedUserQuery(query, user);
 
 	const notes = await query.take(ps.limit!).getMany();
 

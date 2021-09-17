@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { UserGroup } from '../entities/user-group';
-import { UserGroupJoinings } from '..';
-import { SchemaType } from '../../misc/schema';
+import { UserGroup } from '@/models/entities/user-group';
+import { UserGroupJoinings } from '../index';
+import { SchemaType } from '@/misc/schema';
 
 export type PackedUserGroup = SchemaType<typeof packedUserGroupSchema>;
 
@@ -34,19 +34,16 @@ export const packedUserGroupSchema = {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'id',
-			description: 'The unique identifier for this UserGroup.',
 			example: 'xxxxxxxxxx',
 		},
 		createdAt: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'date-time',
-			description: 'The date that the UserGroup was created.'
 		},
 		name: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
-			description: 'The name of the UserGroup.'
 		},
 		ownerId: {
 			type: 'string' as const,

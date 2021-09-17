@@ -1,7 +1,8 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { MessagingMessage } from '../entities/messaging-message';
-import { Users, DriveFiles, UserGroups } from '..';
-import { SchemaType } from '../../misc/schema';
+import { MessagingMessage } from '@/models/entities/messaging-message';
+import { Users, DriveFiles, UserGroups } from '../index';
+import { SchemaType } from '@/misc/schema';
+import { User } from '@/models/entities/user';
 
 export type PackedMessagingMessage = SchemaType<typeof packedMessagingMessageSchema>;
 
@@ -13,7 +14,7 @@ export class MessagingMessageRepository extends Repository<MessagingMessage> {
 
 	public async pack(
 		src: MessagingMessage['id'] | MessagingMessage,
-		me?: any,
+		me?: { id: User['id'] } | null | undefined,
 		options?: {
 			populateRecipient?: boolean,
 			populateGroup?: boolean,
@@ -52,14 +53,12 @@ export const packedMessagingMessageSchema = {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'id',
-			description: 'The unique identifier for this MessagingMessage.',
 			example: 'xxxxxxxxxx',
 		},
 		createdAt: {
 			type: 'string' as const,
 			optional: false as const, nullable: false as const,
 			format: 'date-time',
-			description: 'The date that the MessagingMessage was created.'
 		},
 		userId: {
 			type: 'string' as const,
@@ -68,7 +67,7 @@ export const packedMessagingMessageSchema = {
 		},
 		user: {
 			type: 'object' as const,
-			ref: 'User',
+			ref: 'User' as const,
 			optional: true as const, nullable: false as const,
 		},
 		text: {
@@ -83,7 +82,7 @@ export const packedMessagingMessageSchema = {
 		file: {
 			type: 'object' as const,
 			optional: true as const, nullable: true as const,
-			ref: 'DriveFile',
+			ref: 'DriveFile' as const,
 		},
 		recipientId: {
 			type: 'string' as const,
@@ -93,7 +92,7 @@ export const packedMessagingMessageSchema = {
 		recipient: {
 			type: 'object' as const,
 			optional: true as const, nullable: true as const,
-			ref: 'User'
+			ref: 'User' as const,
 		},
 		groupId: {
 			type: 'string' as const,
@@ -103,7 +102,7 @@ export const packedMessagingMessageSchema = {
 		group: {
 			type: 'object' as const,
 			optional: true as const, nullable: true as const,
-			ref: 'UserGroup'
+			ref: 'UserGroup' as const,
 		},
 		isRead: {
 			type: 'boolean' as const,

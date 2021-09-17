@@ -1,21 +1,26 @@
 <template>
-<div class="efzpzdvf">
-	<XWidgets :edit="editMode" :widgets="$store.reactiveState.widgets.value" @add-widget="addWidget" @remove-widget="removeWidget" @update-widget="updateWidget" @update-widgets="updateWidgets" @exit="editMode = false"/>
+<div class="ddiqwdnk">
+	<XWidgets class="widgets" :edit="editMode" :widgets="$store.reactiveState.widgets.value.filter(w => w.place === place)" @add-widget="addWidget" @remove-widget="removeWidget" @update-widget="updateWidget" @update-widgets="updateWidgets" @exit="editMode = false"/>
+	<MkAd class="a" :prefer="['square']"/>
 
-	<button v-if="editMode" @click="editMode = false" class="_textButton" style="font-size: 0.9em;"><Fa :icon="faCheck"/> {{ $ts.editWidgetsExit }}</button>
-	<button v-else @click="editMode = true" class="_textButton" style="font-size: 0.9em;"><Fa :icon="faPencilAlt"/> {{ $ts.editWidgets }}</button>
+	<button v-if="editMode" @click="editMode = false" class="_textButton edit" style="font-size: 0.9em;"><i class="fas fa-check"></i> {{ $ts.editWidgetsExit }}</button>
+	<button v-else @click="editMode = true" class="_textButton edit" style="font-size: 0.9em;"><i class="fas fa-pencil-alt"></i> {{ $ts.editWidgets }}</button>
 </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, defineAsyncComponent } from 'vue';
-import { faPencilAlt, faPlus, faBars, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
-import XWidgets from '@/components/widgets.vue';
-import * as os from '@/os';
+import XWidgets from '@client/components/widgets.vue';
 
 export default defineComponent({
 	components: {
 		XWidgets
+	},
+
+	props: {
+		place: {
+			type: String,
+		}
 	},
 
 	emits: ['mounted'],
@@ -23,7 +28,6 @@ export default defineComponent({
 	data() {
 		return {
 			editMode: false,
-			faPencilAlt, faPlus, faBars, faTimes, faCheck,
 		};
 	},
 
@@ -35,7 +39,7 @@ export default defineComponent({
 		addWidget(widget) {
 			this.$store.set('widgets', [{
 				...widget,
-				place: null,
+				place: this.place,
 			}, ...this.$store.state.widgets]);
 		},
 
@@ -51,31 +55,30 @@ export default defineComponent({
 		},
 
 		updateWidgets(widgets) {
-			this.$store.set('widgets', widgets);
+			this.$store.set('widgets', [
+				...this.$store.state.widgets.filter(w => w.place !== this.place),
+				...widgets
+			]);
 		}
 	}
 });
 </script>
 
 <style lang="scss" scoped>
-.efzpzdvf {
+.ddiqwdnk {
 	position: sticky;
 	height: min-content;
-	min-height: 100vh;
-	padding: var(--margin) 0;
 	box-sizing: border-box;
+	padding-bottom: 8px;
 
-	> * {
-		margin: var(--margin) 0;
+	> .widgets,
+	> .a {
 		width: 300px;
-
-		&:first-child {
-			margin-top: 0;
-		}
 	}
 
-	> .add {
-		margin: 0 auto;
+	> .edit {
+		display: block;
+		margin: 16px auto;
 	}
 }
 </style>

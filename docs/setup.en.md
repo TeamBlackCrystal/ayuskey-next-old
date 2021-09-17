@@ -24,7 +24,7 @@ Please install and setup these softwares:
 
 #### Dependencies :package:
 * **[Node.js](https://nodejs.org/en/)** (12.x, 14.x)
-* **[PostgreSQL](https://www.postgresql.org/)** (>= 10)
+* **[PostgreSQL](https://www.postgresql.org/)** (12.x / 13.x is preferred)
 * **[Redis](https://redis.io/)**
 
 ##### Optional
@@ -40,13 +40,13 @@ Please install and setup these softwares:
 
 2. Clone the misskey repo from master branch.
 
-	`git clone -b master git://github.com/syuilo/misskey.git`
+	`git clone -b master git://github.com/misskey-dev/misskey.git`
 
 3. Navigate to misskey directory
 
 	`cd misskey`
 
-4. Checkout to the [latest release](https://github.com/syuilo/misskey/releases/latest)
+4. Checkout to the [latest release](https://github.com/misskey-dev/misskey/releases/latest)
 
 	`git checkout master`
 
@@ -131,11 +131,12 @@ You can check if the service is running with `systemctl status misskey`.
 ### How to update your Misskey server to the latest version
 1. `git checkout master`
 2. `git pull`
-3. `yarn install`
-4. `NODE_ENV=production yarn build`
-5. `yarn migrate`
-6. Restart your Misskey process to apply changes
-7. Enjoy
+3. `git submodule update --init`
+4. `yarn install`
+5. `NODE_ENV=production yarn build`
+6. `yarn migrate`
+7. Restart your Misskey process to apply changes
+8. Enjoy
 
 If you encounter any problems with updating, please try the following:
 1. `yarn clean` or `yarn cleanall`

@@ -1,4 +1,4 @@
-import { Meta } from '../models/entities/meta';
+import { Meta } from '@/models/entities/meta';
 import { getConnection } from 'typeorm';
 
 let cache: Meta;
@@ -32,4 +32,4 @@ setInterval(() => {
 	fetchMeta(true).then(meta => {
 		cache = meta;
 	});
-}, 5000);
+}, 1000 * 10);

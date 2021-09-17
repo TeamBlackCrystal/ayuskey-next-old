@@ -1,10 +1,10 @@
 <template>
 <div class="_card">
 	<div class="_content">
-		<MkInput v-model:value="text">
-			<span>Text</span>
+		<MkInput v-model="text">
+			<template #label>Text</template>
 		</MkInput>
-		<MkSwitch v-model:value="flag">
+		<MkSwitch v-model="flag">
 			<span>Switch is now {{ flag ? 'on' : 'off' }}</span>
 		</MkSwitch>
 		<div style="margin: 32px 0;">
@@ -29,13 +29,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import MkButton from '@/components/ui/button.vue';
-import MkInput from '@/components/ui/input.vue';
-import MkSwitch from '@/components/ui/switch.vue';
-import MkTextarea from '@/components/ui/textarea.vue';
-import MkRadio from '@/components/ui/radio.vue';
-import * as os from '@/os';
-import * as config from '@/config';
+import MkButton from '@client/components/ui/button.vue';
+import MkInput from '@client/components/ui/input.vue';
+import MkSwitch from '@client/components/ui/switch.vue';
+import MkTextarea from '@client/components/ui/textarea.vue';
+import MkRadio from '@client/components/ui/radio.vue';
+import * as os from '@client/os';
+import * as config from '@client/config';
 
 export default defineComponent({
 	components: {
@@ -93,7 +93,7 @@ export default defineComponent({
 		},
 
 		async openMenu(ev) {
-			os.modalMenu([{
+			os.popupMenu([{
 				type: 'label',
 				text: 'Fruits'
 			}, {

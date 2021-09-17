@@ -1,13 +1,13 @@
-import { publishMainStream } from '../../stream';
-import { renderActivity } from '../../../remote/activitypub/renderer';
-import renderFollow from '../../../remote/activitypub/renderer/follow';
-import { deliver } from '../../../queue';
-import { User } from '../../../models/entities/user';
-import { Blockings, FollowRequests, Users } from '../../../models';
-import { genId } from '../../../misc/gen-id';
+import { publishMainStream } from '@/services/stream';
+import { renderActivity } from '@/remote/activitypub/renderer/index';
+import renderFollow from '@/remote/activitypub/renderer/follow';
+import { deliver } from '@/queue/index';
+import { User } from '@/models/entities/user';
+import { Blockings, FollowRequests, Users } from '@/models/index';
+import { genId } from '@/misc/gen-id';
 import { createNotification } from '../../create-notification';
 
-export default async function(follower: User, followee: User, requestId?: string) {
+export default async function(follower: { id: User['id']; host: User['host']; uri: User['host']; inbox: User['inbox']; sharedInbox: User['sharedInbox']; }, followee: { id: User['id']; host: User['host']; uri: User['host']; inbox: User['inbox']; sharedInbox: User['sharedInbox']; }, requestId?: string) {
 	if (follower.id === followee.id) return;
 
 	// check blocking
@@ -43,9 +43,9 @@ export default async function(follower: User, followee: User, requestId?: string
 
 	// Publish receiveRequest event
 	if (Users.isLocalUser(followee)) {
-		Users.pack(follower, followee).then(packed => publishMainStream(followee.id, 'receiveFollowRequest', packed));
+		Users.pack(follower.id, followee).then(packed => publishMainStream(followee.id, 'receiveFollowRequest', packed));
 
-		Users.pack(followee, followee, {
+		Users.pack(followee.id, followee, {
 			detail: true
 		}).then(packed => publishMainStream(followee.id, 'meUpdated', packed));
 

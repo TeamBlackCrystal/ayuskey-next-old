@@ -1,16 +1,18 @@
+// TODO: なんでもかんでもos.tsに突っ込むのやめたいのでよしなに分割する
+
 import { Component, defineAsyncComponent, markRaw, reactive, Ref, ref } from 'vue';
 import { EventEmitter } from 'eventemitter3';
+import insertTextAtCursor from 'insert-text-at-cursor';
+import * as Misskey from 'misskey-js';
 import * as Sentry from '@sentry/browser';
-import Stream from '@/scripts/stream';
-import { apiUrl, debug } from '@/config';
-import MkPostFormDialog from '@/components/post-form-dialog.vue';
-import MkWaitingDialog from '@/components/waiting-dialog.vue';
-import { resolve } from '@/router';
-import { $i } from '@/account';
-import { defaultStore } from '@/store';
-import parseAcct from '../misc/acct/parse';
+import { apiUrl, debug, url } from '@client/config';
+import MkPostFormDialog from '@client/components/post-form-dialog.vue';
+import MkWaitingDialog from '@client/components/waiting-dialog.vue';
+import { resolve } from '@client/router';
+import { $i } from '@client/account';
+import { defaultStore } from '@client/store';
 
-export const stream = markRaw(new Stream());
+export const stream = markRaw(new Misskey.Stream(url, $i));
 
 export const pendingApiRequestsCount = ref(0);
 let apiRequestsCount = 0; // for debug
@@ -18,21 +20,25 @@ export const apiRequests = ref([]); // for debug
 
 export const windows = new Map();
 
-export function api(endpoint: string, data: Record<string, any> = {}, token?: string | null | undefined, lite?: boolean) {
-	if (!lite) pendingApiRequestsCount.value++;
+const apiClient = new Misskey.api.APIClient({
+	origin: url,
+});
+
+export const api = ((endpoint: string, data: Record<string, any> = {}, token?: string | null | undefined) => {
+	pendingApiRequestsCount.value++;
 
 	const onFinally = () => {
 		pendingApiRequestsCount.value--;
 	};
 
-	const log = !lite && debug ? reactive({
+	const log = debug ? reactive({
 		id: ++apiRequestsCount,
 		endpoint,
 		req: markRaw(data),
 		res: null,
 		state: 'pending',
 	}) : null;
-	if (debug && !lite) {
+	if (debug) {
 		apiRequests.value.push(log);
 		if (apiRequests.value.length > 128) apiRequests.value.shift();
 	}
@@ -54,7 +60,7 @@ export function api(endpoint: string, data: Record<string, any> = {}, token?: st
 			if (res.status === 200) {
 				resolve(body);
 				if (debug) {
-					log!.res = markRaw(body);
+					log!.res = markRaw(JSON.parse(JSON.stringify(body)));
 					log!.state = 'success';
 				}
 			} else if (res.status === 204) {
@@ -88,17 +94,15 @@ export function api(endpoint: string, data: Record<string, any> = {}, token?: st
 	promise.then(onFinally, onFinally);
 
 	return promise;
-}
+}) as typeof apiClient.request;
 
-export function apiWithDialog(
+export const apiWithDialog = ((
 	endpoint: string,
 	data: Record<string, any> = {},
 	token?: string | null | undefined,
-	onSuccess?: (res: any) => void,
-	onFailure?: (e: Error) => void,
-) {
+) => {
 	const promise = api(endpoint, data, token);
-	promiseDialog(promise, onSuccess, onFailure ? onFailure : (e) => {
+	promiseDialog(promise, null, (e) => {
 		dialog({
 			type: 'error',
 			text: e.message + '\n' + (e as any).id,
@@ -106,7 +110,7 @@ export function apiWithDialog(
 	});
 
 	return promise;
-}
+}) as typeof api;
 
 export function promiseDialog<T extends Promise<any>>(
 	promise: T,
@@ -194,16 +198,29 @@ export async function popup(component: Component | typeof import('*.vue') | Prom
 
 export function pageWindow(path: string) {
 	const { component, props } = resolve(path);
-	popup(import('@/components/page-window.vue'), {
+	popup(import('@client/components/page-window.vue'), {
 		initialPath: path,
 		initialComponent: markRaw(component),
 		initialProps: props,
 	}, {}, 'closed');
 }
 
-export function dialog(props: Record<string, any>) {
+export function modalPageWindow(path: string) {
+	const { component, props } = resolve(path);
+	popup(import('@client/components/modal-page-window.vue'), {
+		initialPath: path,
+		initialComponent: markRaw(component),
+		initialProps: props,
+	}, {}, 'closed');
+}
+
+export function dialog(props: {
+	type: 'error' | 'info' | 'success' | 'warning' | 'waiting';
+	title?: string | null;
+	text?: string | null;
+}) {
 	return new Promise((resolve, reject) => {
-		popup(import('@/components/dialog.vue'), props, {
+		popup(import('@client/components/dialog.vue'), props, {
 			done: result => {
 				resolve(result ? result : { canceled: true });
 			},
@@ -217,7 +234,7 @@ export function success() {
 		setTimeout(() => {
 			showing.value = false;
 		}, 1000);
-		popup(import('@/components/waiting-dialog.vue'), {
+		popup(import('@client/components/waiting-dialog.vue'), {
 			success: true,
 			showing: showing
 		}, {
@@ -229,7 +246,7 @@ export function success() {
 export function waiting() {
 	return new Promise((resolve, reject) => {
 		const showing = ref(true);
-		popup(import('@/components/waiting-dialog.vue'), {
+		popup(import('@client/components/waiting-dialog.vue'), {
 			success: false,
 			showing: showing
 		}, {
@@ -240,7 +257,7 @@ export function waiting() {
 
 export function form(title, form) {
 	return new Promise((resolve, reject) => {
-		popup(import('@/components/form-dialog.vue'), { title, form }, {
+		popup(import('@client/components/form-dialog.vue'), { title, form }, {
 			done: result => {
 				resolve(result);
 			},
@@ -250,7 +267,7 @@ export function form(title, form) {
 
 export async function selectUser() {
 	return new Promise((resolve, reject) => {
-		popup(import('@/components/user-select-dialog.vue'), {}, {
+		popup(import('@client/components/user-select-dialog.vue'), {}, {
 			ok: user => {
 				resolve(user);
 			},
@@ -260,7 +277,7 @@ export async function selectUser() {
 
 export async function selectDriveFile(multiple: boolean) {
 	return new Promise((resolve, reject) => {
-		popup(import('@/components/drive-select-dialog.vue'), {
+		popup(import('@client/components/drive-select-dialog.vue'), {
 			type: 'file',
 			multiple
 		}, {
@@ -275,7 +292,7 @@ export async function selectDriveFile(multiple: boolean) {
 
 export async function selectDriveFolder(multiple: boolean) {
 	return new Promise((resolve, reject) => {
-		popup(import('@/components/drive-select-dialog.vue'), {
+		popup(import('@client/components/drive-select-dialog.vue'), {
 			type: 'folder',
 			multiple
 		}, {
@@ -290,7 +307,7 @@ export async function selectDriveFolder(multiple: boolean) {
 
 export async function pickEmoji(src?: HTMLElement, opts) {
 	return new Promise((resolve, reject) => {
-		popup(import('@/components/emoji-picker.vue'), {
+		popup(import('@client/components/emoji-picker-dialog.vue'), {
 			src,
 			...opts
 		}, {
@@ -301,10 +318,64 @@ export async function pickEmoji(src?: HTMLElement, opts) {
 	});
 }
 
-export function modalMenu(items: any[], src?: HTMLElement, options?: { align?: string; viaKeyboard?: boolean }) {
+type AwaitType<T> =
+	T extends Promise<infer U> ? U :
+	T extends (...args: any[]) => Promise<infer V> ? V :
+	T;
+let openingEmojiPicker: AwaitType<ReturnType<typeof popup>> | null = null;
+let activeTextarea: HTMLTextAreaElement | HTMLInputElement | null = null;
+export async function openEmojiPicker(src?: HTMLElement, opts, initialTextarea: typeof activeTextarea) {
+	if (openingEmojiPicker) return;
+
+	activeTextarea = initialTextarea;
+
+	const textareas = document.querySelectorAll('textarea, input');
+	for (const textarea of Array.from(textareas)) {
+		textarea.addEventListener('focus', () => {
+			activeTextarea = textarea;
+		});
+	}
+
+	const observer = new MutationObserver(records => {
+		for (const record of records) {
+			for (const node of Array.from(record.addedNodes).filter(node => node instanceof HTMLElement) as HTMLElement[]) {
+				const textareas = node.querySelectorAll('textarea, input') as NodeListOf<NonNullable<typeof activeTextarea>>;
+				for (const textarea of Array.from(textareas).filter(textarea => textarea.dataset.preventEmojiInsert == null)) {
+					if (document.activeElement === textarea) activeTextarea = textarea;
+					textarea.addEventListener('focus', () => {
+						activeTextarea = textarea;
+					});
+				}
+			}
+		}
+	});
+
+	observer.observe(document.body, {
+		childList: true,
+		subtree: true,
+		attributes: false,
+		characterData: false,
+	});
+
+	openingEmojiPicker = await popup(import('@client/components/emoji-picker-window.vue'), {
+		src,
+		...opts
+	}, {
+		chosen: emoji => {
+			insertTextAtCursor(activeTextarea, emoji);
+		},
+		closed: () => {
+			openingEmojiPicker!.dispose();
+			openingEmojiPicker = null;
+			observer.disconnect();
+		}
+	});
+}
+
+export function popupMenu(items: any[], src?: HTMLElement, options?: { align?: string; viaKeyboard?: boolean }) {
 	return new Promise((resolve, reject) => {
 		let dispose;
-		popup(import('@/components/ui/modal-menu.vue'), {
+		popup(import('@client/components/ui/popup-menu.vue'), {
 			items,
 			src,
 			align: options?.align,
@@ -324,7 +395,7 @@ export function contextMenu(items: any[], ev: MouseEvent) {
 	ev.preventDefault();
 	return new Promise((resolve, reject) => {
 		let dispose;
-		popup(import('@/components/ui/context-menu.vue'), {
+		popup(import('@client/components/ui/context-menu.vue'), {
 			items,
 			ev,
 		}, {
@@ -442,23 +513,4 @@ export async function getInstance(host?: string): Promise<Instance | null> {
 		};
 	}
 	return instances[host];
-}
-
-type Avatar = {
-	fetchedAt: number,
-	avatarUrl: string,
-};
-
-const avatars: Record<string, Avatar> = {};
-
-export async function getAvatar(acct: string): Promise<string> { 
-	const now = Date.now();
-	// キャッシュが無いか、前回取得時から5分以上たっていれば取得してくる
-	if (!avatars[acct] || now - avatars[acct].fetchedAt > 1000 * 60 * 5) {
-		avatars[acct] = {
-			avatarUrl: (await api('users/show', parseAcct(acct), undefined, true).catch(e => ({ avatarUrl: '' })) as any).avatarUrl,
-			fetchedAt: now
-		};
-	}
-	return avatars[acct].avatarUrl;
 }

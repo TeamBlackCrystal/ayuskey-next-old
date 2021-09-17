@@ -3,15 +3,16 @@ import * as tmp from 'tmp';
 import * as fs from 'fs';
 
 import { queueLogger } from '../../logger';
-import addFile from '../../../services/drive/add-file';
-import dateFormat = require('dateformat');
-import { getFullApAccount } from '../../../misc/convert-host';
-import { Users, Followings } from '../../../models';
+import addFile from '@/services/drive/add-file';
+import dateFormat from 'dateformat';
+import { getFullApAccount } from '@/misc/convert-host';
+import { Users, Followings } from '@/models/index';
 import { MoreThan } from 'typeorm';
+import { DbUserJobData } from '@/queue/types';
 
 const logger = queueLogger.createSubLogger('export-following');
 
-export async function exportFollowing(job: Bull.Job, done: any): Promise<void> {
+export async function exportFollowing(job: Bull.Job<DbUserJobData>, done: any): Promise<void> {
 	logger.info(`Exporting following of ${job.data.user.id} ...`);
 
 	const user = await Users.findOne(job.data.user.id);
@@ -61,7 +62,7 @@ export async function exportFollowing(job: Bull.Job, done: any): Promise<void> {
 			}
 
 			const content = getFullApAccount(u.username, u.host);
-			await new Promise((res, rej) => {
+			await new Promise<void>((res, rej) => {
 				stream.write(content + '\n', err => {
 					if (err) {
 						logger.error(err);
