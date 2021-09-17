@@ -10,7 +10,7 @@ const terser = require('gulp-terser');
 const cssnano = require('gulp-cssnano');
 
 const locales: { [x: string]: any } = require('./locales');
-const meta = require('./package.json');
+const meta = require('./built/meta.json');
 
 gulp.task('build:copy:views', () =>
 	gulp.src('./src/server/web/views/**/*').pipe(gulp.dest('./built/server/web/views'))
