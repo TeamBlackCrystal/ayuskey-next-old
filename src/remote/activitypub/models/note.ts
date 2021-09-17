@@ -229,12 +229,13 @@ export async function createNote(value: string | IObject, resolver?: Resolver, s
 
 	const apEmojis = emojis.map(emoji => emoji.name);
 
+	/* 実装がない
 	const f = parse(text);
 
 	if (f) {
 		const avatarEmojis = extractEmojisFromMfm(f).filter(e => e.startsWith('@'));
 		apEmojis.push(...avatarEmojis);
-	}
+	}*/
 
 	const poll = await extractPollFromQuestion(note, resolver).catch(() => undefined);
 
