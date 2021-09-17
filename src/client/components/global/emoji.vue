@@ -51,9 +51,10 @@ export default defineComponent({
 			return this.emoji.startsWith(':');
 		},
 
+		/*
 		isUser(): boolean {
 			return this.emoji.startsWith(':@');
-		},
+		},*/
 
 		alt(): string {
 			return this.customEmoji ? `:${this.customEmoji.name}:` : this.char;
@@ -93,8 +94,9 @@ export default defineComponent({
 			this.char = this.emoji;
 		}
 
-		const acct = this.emoji.slice(1, this.emoji.length - 1);
+		//const acct = this.emoji.slice(1, this.emoji.length - 1);
 
+		/*
 		if (this.isUser && !this.customEmojis.some(c => c.name === acct)) {
 			os.getAvatar(acct).then(url => {
 				this.customEmoji = {
@@ -103,7 +105,7 @@ export default defineComponent({
 				};
 				this.url = url;
 			});
-		}
+		}*/
 
 		if (this.char) {
 			let codes = Array.from(this.char).map(x => x.codePointAt(0).toString(16));
