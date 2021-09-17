@@ -5,6 +5,7 @@ import { Notes, NoteUnreads, FollowRequests, Notifications, MessagingMessages, U
 import config from '@/config/index';
 import { SchemaType } from '@/misc/schema';
 import { awaitAll } from '@/prelude/await-all';
+import { toPunyNullable } from '@/misc/convert-host';
 import { populateEmojis } from '@/misc/populate-emojis';
 import { getAntennas } from '@/misc/antenna-cache';
 import { USER_ACTIVE_THRESHOLD, USER_ONLINE_THRESHOLD } from '@/const';
@@ -197,6 +198,7 @@ export class UserRepository extends Repository<User> {
 			isCat: user.isCat || falsy,
 			isLady: user.isLady || falsy,
 			instance: user.host ? Instances.findOne({ host: user.host }).then(instance => instance ? {
+				host: toPunyNullable(user.host),
 				name: instance.name,
 				softwareName: instance.softwareName,
 				softwareVersion: instance.softwareVersion,
