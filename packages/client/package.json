@@ -61,7 +61,7 @@
 		"broadcast-channel": "4.5.0",
 		"chart.js": "3.6.0",
 		"chartjs-adapter-date-fns": "2.0.0",
-		"chartjs-plugin-zoom": "1.1.1",
+		"chartjs-plugin-zoom": "1.2.0",
 		"compare-versions": "3.6.0",
 		"concurrently": "6.3.0",
 		"content-disposition": "0.5.3",
